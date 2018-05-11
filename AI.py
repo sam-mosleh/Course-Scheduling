@@ -68,11 +68,11 @@ def readFromExcel():
         allDays.append(d)
 
     # Import Classes
-    classrooms=[Classroom(i) for i in amoozeshRead.columns]
+    classrooms = [Classroom(i) for i in amoozeshRead.columns]
 
     # Import Courses
-    courses=[Course(i) for i in profskillRead.columns]
-    print
+    courses = [Course(i) for i in profskillRead.columns]
+
     # Import Instructors
     for i in profskillRead.index:
         # Name of Instructor
@@ -93,6 +93,12 @@ def readFromExcel():
         instructorsList.append(newIns)
 
 
+def initChromosomes(f_numberOfNodes):
+    for i in range(f_numberOfNodes):
+        newChro = Chromosome()
+        newChro.randomInitialize()
+        chromosomeList.append(newChro)
+
 # Initialize Global variables
 allDays = []
 classrooms = []  # type: List[Classroom]
@@ -102,5 +108,5 @@ chromosomeList = []  # type: List[Chromosome]
 
 # Start reading
 readFromExcel()
-
-
+initChromosomes(100)
+print(len(chromosomeList))

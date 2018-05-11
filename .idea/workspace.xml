@@ -12,22 +12,22 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526080800070" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526081219044" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="AI.py" pinned="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AI.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="104" lean-forward="true" selection-start-line="104" selection-end-line="104" />
+            <state relative-caret-position="2">
+              <caret line="58" column="20" selection-start-line="58" selection-start-column="20" selection-end-line="58" selection-end-column="20" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
                 <element signature="e#255#374#0" />
                 <element signature="e#299#558#0" />
                 <element signature="e#487#605#0" />
                 <element signature="e#757#1472#0" />
-                <element signature="e#1352#2607#0" />
+                <element signature="e#1697#2946#0" />
               </folding>
             </state>
           </provider>
@@ -217,7 +217,7 @@
             <element signature="e#299#558#0" />
             <element signature="e#487#605#0" />
             <element signature="e#757#1472#0" />
-            <element signature="e#1352#2607#0" />
+            <element signature="e#1697#2946#0" />
           </folding>
         </state>
       </provider>
@@ -265,15 +265,15 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="104" lean-forward="true" selection-start-line="104" selection-end-line="104" />
+        <state relative-caret-position="2">
+          <caret line="58" column="20" selection-start-line="58" selection-start-column="20" selection-end-line="58" selection-end-column="20" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
             <element signature="e#255#374#0" />
             <element signature="e#299#558#0" />
             <element signature="e#487#605#0" />
             <element signature="e#757#1472#0" />
-            <element signature="e#1352#2607#0" />
+            <element signature="e#1697#2946#0" />
           </folding>
         </state>
       </provider>
