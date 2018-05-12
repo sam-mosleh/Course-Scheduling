@@ -31,29 +31,91 @@ class Classroom:
 
 
 class Chromosome:
-    def __init__(self):
+    def __init__(self, f_mutationProb=10, f_mutateSize=2):
         # Size of a chromosome is 5(Days)*4(Times)*Number of classes
         # Schedule contains ID of instructor and course
         self.scheduleSize = 5*4*len(classrooms)
-        self.schedule = [(0, 0) for i in range(self.scheduleSize)]
-        self.setFlag=[0 for i in range(self.scheduleSize)]
+        self.schedule = [(-1, -1) for i in range(self.scheduleSize)]
+        self.mutationProbability = f_mutationProb
+        self.mutationSize = f_mutateSize
+        self.__myScore = 0
+
+    def scoring(self):
+        return self.__myScore;
 
     def randomInitialize(self):
         # Fill it randomly
 
         # End if cannot fill it
-        if 2*len(courses)>self.scheduleSize :
+        if 2*len(courses) > self.scheduleSize:
             return
 
         for randCours in range(len(courses)):
             for repT in range(courses[randCours].timesInWeek):
-                randInst = randint(0, len(courses[randCours].presentors) - 1)
+                ri = randint(0, len(courses[randCours].presentors) - 1)
+                randInst = courses[randCours].presentors[ri]
                 rs = randint(0, self.scheduleSize-1)
-                while self.setFlag[rs]:
+                while self.schedule[rs][0] != -1:
                     rs = randint(0, self.scheduleSize - 1)
-                self.setFlag[rs] = 1
                 self.schedule[rs] = (randInst, randCours)
+                #print(rs, randInst, randCours)
 
+    def mutate(self):
+        if randint(0,100)>self.mutationProbability:
+            return
+        # Swap 2 blocks in chromosome doing it mutationSize times
+        for i in range(self.mutationSize):
+            randSch1 = randint(0, self.scheduleSize - 1)
+            randSch2 = randint(0, self.scheduleSize - 1)
+            while randSch1==randSch2:
+                randSch1 = randint(0, self.scheduleSize - 1)
+                randSch2 = randint(0, self.scheduleSize - 1)
+            self.schedule[randSch1], self.schedule[randSch2] = self.schedule[randSch2], self.schedule[randSch1]
+        self.fitnessCalculation()
+
+    def fitnessCalculation(self):
+        score = 0
+        # Located with enough seats (Course cont and class cap)
+        for i in range(self.scheduleSize):
+            if self.schedule[i][0]!=-1 and courses[self.schedule[i][1]].containing <= classrooms[classDayTime(i)[0]].capacity:
+                score += 1
+
+        # Professor is not busy
+        for i in range(self.scheduleSize):
+            if self.schedule[i][0]!=-1:
+                _busy = 0
+                _not_busy = 1
+                indSch = i % 20
+                flagOstad = _not_busy
+                while indSch<self.scheduleSize:
+                    if indSch != i and self.schedule[i][0] == self.schedule[indSch][0]:
+                        flagOstad = _busy
+                    indSch += 20
+                if flagOstad == _not_busy:
+                    score += 1
+
+
+        # Course is not teaching in another class
+        for i in range(self.scheduleSize):
+            if self.schedule[i][0] != -1:
+                _not_taught = 0
+                _taught = 1
+                indSch = i % 20
+                flagDars = _not_taught
+                while indSch < self.scheduleSize:
+                    if indSch != i and self.schedule[i][1] == self.schedule[indSch][1]:
+                        flagDars = _taught
+                    indSch += 20
+                if flagDars == _not_taught:
+                    score += 1
+        self.__myScore = score
+
+def classDayTime(f_n):
+    classN = f_n//20
+    f_n = f_n%20
+    dayN = f_n//4
+    timeN = f_n%4
+    return classN,dayN,timeN
 
 
 def readFromExcel():
@@ -99,6 +161,8 @@ def initChromosomes(f_numberOfNodes):
         newChro.randomInitialize()
         chromosomeList.append(newChro)
 
+
+
 # Initialize Global variables
 allDays = []
 classrooms = []  # type: List[Classroom]
@@ -108,5 +172,8 @@ chromosomeList = []  # type: List[Chromosome]
 
 # Start reading
 readFromExcel()
-initChromosomes(100)
+initChromosomes(1)
 print(len(chromosomeList))
+print(chromosomeList[0].schedule)
+chromosomeList[0].fitnessCalculation()
+print(chromosomeList[0].scoring())
