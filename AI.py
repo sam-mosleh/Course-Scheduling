@@ -59,6 +59,7 @@ class Chromosome:
                     rs = randint(0, self.scheduleSize - 1)
                 self.schedule[rs] = (randInst, randCours)
                 #print(rs, randInst, randCours)
+        self.fitnessCalculation()
 
     def mutate(self):
         if randint(0,100)>self.mutationProbability:
@@ -162,6 +163,26 @@ def initChromosomes(f_numberOfNodes):
         chromosomeList.append(newChro)
 
 
+# Crossover (Child) of two Chromosomes
+def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=8):
+    chromoSize = chrom1.scheduleSize
+    newChromo=Chromosome()
+    crossoverPoints = {}
+    while len(crossoverPoints) < f_crossoverPointNumber:
+        randPoint = randint(0, chromoSize-1)
+        if randPoint not in crossoverPoints:
+            crossoverPoints[randPoint] = 1
+    firstChoice = randint(0, 1)
+    for i in range(chromoSize):
+        if firstChoice:
+            newChromo.schedule[i] = chrom1.schedule[i]
+        else:
+            newChromo.schedule[i] = chrom2.schedule[i]
+        if i in crossoverPoints:
+            firstChoice = (not firstChoice)
+    newChromo.fitnessCalculation()
+    return newChromo
+
 
 # Initialize Global variables
 allDays = []
@@ -172,8 +193,16 @@ chromosomeList = []  # type: List[Chromosome]
 
 # Start reading
 readFromExcel()
-initChromosomes(1)
-print(len(chromosomeList))
-print(chromosomeList[0].schedule)
-chromosomeList[0].fitnessCalculation()
-print(chromosomeList[0].scoring())
+
+initChromosomes(100)
+# print(len(chromosomeList))
+# print(chromosomeList[0].schedule)
+# print(chromosomeList[1].schedule)
+# chrNC = crossover(chromosomeList[0],chromosomeList[1])
+# print(chrNC.schedule)
+# chromosomeList[0].fitnessCalculation()
+# chromosomeList[1].fitnessCalculation()
+# chrNC.fitnessCalculation()
+# print(chromosomeList[0].scoring())
+# print(chromosomeList[1].scoring())
+# print(chrNC.scoring())
