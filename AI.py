@@ -6,7 +6,7 @@ from random import *
 
 # Defining infinity number
 maxInfinity = 1000000
-
+stageSize = 400
 
 class Instructor:
     def __init__(self, f_name):
@@ -31,7 +31,7 @@ class Classroom:
 
 
 class Chromosome:
-    def __init__(self, f_mutationProb=10, f_mutateSize=2):
+    def __init__(self, f_mutationProb=50, f_mutateSize=20):
         # Size of a chromosome is 5(Days)*4(Times)*Number of classes
         # Schedule contains ID of instructor and course
         self.scheduleSize = 5*4*len(classrooms)
@@ -127,9 +127,8 @@ def readFromExcel():
     daysRead = pd.read_excel('Proffosor_FreeTime.xlsx')
 
     # Name of days
-    for d in daysRead:
+    for d in daysRead.index:
         allDays.append(d)
-
     # Import Classes
     classrooms = [Classroom(i) for i in amoozeshRead.columns]
 
@@ -164,7 +163,7 @@ def initChromosomes(f_numberOfNodes):
 
 
 # Crossover (Child) of two Chromosomes
-def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=8):
+def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=10):
     chromoSize = chrom1.scheduleSize
     newChromo=Chromosome()
     crossoverPoints = {}
@@ -184,6 +183,26 @@ def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=8):
     return newChromo
 
 
+# Selection algorithm and Iteration
+def chromosomSelector(f_selectedNodes=30):
+    global chromosomeList
+    selectionList = []
+    chromosomeList.sort(key=lambda x: x.scoring())
+    for i in range(f_selectedNodes):
+        randChro1 = randint(0, stageSize-1)
+        randChro2 = randint(0, stageSize-1)
+        #print(randChro1, randChro2, len(chromosomeList))
+        newChro = crossover(chromosomeList[randChro1], chromosomeList[randChro2])
+        newChro.mutate()
+        selectionList.append(newChro)
+    tmpIndex = 0
+    tmpJndx = 0
+    while tmpJndx < len(selectionList):
+        if selectionList[tmpJndx].scoring() > chromosomeList[tmpIndex].scoring():
+            chromosomeList[tmpIndex] = selectionList[0]
+            tmpIndex += 1
+        tmpJndx += 1
+
 # Initialize Global variables
 allDays = []
 classrooms = []  # type: List[Classroom]
@@ -194,7 +213,26 @@ chromosomeList = []  # type: List[Chromosome]
 # Start reading
 readFromExcel()
 
-initChromosomes(100)
+initChromosomes(stageSize)
+# for i in range(100):
+#     chromosomSelector()
+#print([i.scoring() for i in chromosomeList])
+for i in range(400):
+    chromosomSelector()
+print(chromosomeList[-1].scoring())
+for i in range(400):
+    chromosomSelector()
+print(chromosomeList[-1].scoring())
+for i in range(400):
+    chromosomSelector()
+print(chromosomeList[-1].scoring())
+for i in range(400):
+    chromosomSelector()
+print(chromosomeList[-1].scoring())
+for i in range(400):
+    chromosomSelector()
+print(chromosomeList[-1].scoring())
+#print([i.scoring() for i in chromosomeList])
 # print(len(chromosomeList))
 # print(chromosomeList[0].schedule)
 # print(chromosomeList[1].schedule)
@@ -206,3 +244,21 @@ initChromosomes(100)
 # print(chromosomeList[0].scoring())
 # print(chromosomeList[1].scoring())
 # print(chrNC.scoring())
+
+tim = ['8 - 10', '10 - 12', '14 - 16', '16 - 18']
+time_table_dict = {'Class': [], 'Day': [], 'Time': [], 'Course': [], 'Professor': []}
+#print([i for i in allDays])
+for i in range(chromosomeList[-1].scheduleSize):
+    tmpSch = chromosomeList[-1].schedule[i]
+    if tmpSch[0] != -1:
+        #print(i,classDayTime(i))
+        time_table_dict['Class'].append(classrooms[classDayTime(i)[0]].className)
+        time_table_dict['Day'].append(allDays[classDayTime(i)[1]])
+        time_table_dict['Time'].append(tim[classDayTime(i)[2]])
+        time_table_dict['Course'].append(courses[tmpSch[1]].courseName)
+        time_table_dict['Professor'].append(instructorsList[tmpSch[0]].instructorName)
+
+time_table = pd.DataFrame(time_table_dict)
+writer = ExcelWriter('Time_Table.xlsx')
+time_table.to_excel(writer, 'Sheet1', index=False)
+writer.save()

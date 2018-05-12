@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="49c11edc-950c-4157-8c42-f04f2f4fd2af" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AI.py" beforeDir="false" afterPath="$PROJECT_DIR$/AI.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,15 +12,15 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526092891262" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526101303240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="AI.py" pinned="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AI.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="287">
-              <caret line="196" column="20" lean-forward="true" selection-start-line="196" selection-start-column="20" selection-end-line="196" selection-end-column="20" />
+            <state relative-caret-position="-1494">
+              <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
               <folding>
                 <element signature="e#166#308#0" />
                 <element signature="e#329#590#0" />
@@ -32,8 +31,6 @@
                 <element signature="e#1928#2519#0" />
                 <element signature="e#2563#3948#0" />
                 <element signature="e#3977#4075#0" />
-                <element signature="e#4103#5352#0" />
-                <element signature="e#5397#5534#0" />
                 <element signature="e#5622#6206#0" />
               </folding>
             </state>
@@ -75,6 +72,11 @@
       <find>(0,</find>
       <find>(7,</find>
       <find>print</find>
+      <find>randomin</find>
+      <find>100</find>
+      <find>chromoso</find>
+      <find>chromosomelis</find>
+      <find>allda</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -240,8 +242,6 @@
             <element signature="e#1928#2519#0" />
             <element signature="e#2563#3948#0" />
             <element signature="e#3977#4075#0" />
-            <element signature="e#4103#5352#0" />
-            <element signature="e#5397#5534#0" />
             <element signature="e#5622#6206#0" />
           </folding>
         </state>
@@ -278,8 +278,6 @@
             <element signature="e#1928#2519#0" />
             <element signature="e#2563#3948#0" />
             <element signature="e#3977#4075#0" />
-            <element signature="e#4103#5352#0" />
-            <element signature="e#5397#5534#0" />
             <element signature="e#5622#6206#0" />
           </folding>
         </state>
@@ -328,8 +326,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/AI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="287">
-          <caret line="196" column="20" lean-forward="true" selection-start-line="196" selection-start-column="20" selection-end-line="196" selection-end-column="20" />
+        <state relative-caret-position="-1494">
+          <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
           <folding>
             <element signature="e#166#308#0" />
             <element signature="e#329#590#0" />
@@ -340,8 +338,6 @@
             <element signature="e#1928#2519#0" />
             <element signature="e#2563#3948#0" />
             <element signature="e#3977#4075#0" />
-            <element signature="e#4103#5352#0" />
-            <element signature="e#5397#5534#0" />
             <element signature="e#5622#6206#0" />
           </folding>
         </state>
