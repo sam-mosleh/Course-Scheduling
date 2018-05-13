@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="49c11edc-950c-4157-8c42-f04f2f4fd2af" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/AI.py" beforeDir="false" afterPath="$PROJECT_DIR$/AI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Time_Table.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/Time_Table.xlsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -12,26 +14,34 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="CoverageDataManager">
-    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526101303240" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/University_course_scheduling$AI.coverage" NAME="AI Coverage Results" MODIFIED="1526208365829" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="AI.py" pinned="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/AI.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1494">
-              <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
+            <state relative-caret-position="320">
+              <caret line="306" column="8" lean-forward="true" selection-start-line="306" selection-start-column="8" selection-end-line="306" selection-end-column="8" />
               <folding>
-                <element signature="e#166#308#0" />
-                <element signature="e#329#590#0" />
-                <element signature="e#614#732#0" />
-                <element signature="e#820#1171#0" />
-                <element signature="e#1204#1226#0" />
-                <element signature="e#1268#1930#0" />
-                <element signature="e#1928#2519#0" />
-                <element signature="e#2563#3948#0" />
-                <element signature="e#3977#4075#0" />
-                <element signature="e#5622#6206#0" />
+                <element signature="e#0#28#0" expanded="true" />
+                <element signature="e#242#286#0" />
+                <element signature="e#310#452#0" />
+                <element signature="e#473#734#0" />
+                <element signature="e#758#876#0" />
+                <element signature="e#965#1316#0" />
+                <element signature="e#1349#1371#0" />
+                <element signature="e#1413#2144#0" />
+                <element signature="e#2209#2506#0" />
+                <element signature="e#2228#2478#0" />
+                <element signature="e#2227#2466#0" />
+                <element signature="e#2326#3057#0" />
+                <element signature="e#5183#5281#0" />
+                <element signature="e#5309#6563#0" />
+                <element signature="e#6608#6745#0" />
+                <element signature="e#6873#7492#0" />
+                <element signature="e#8531#8693#0" />
+                <element signature="e#8719#9617#0" />
               </folding>
             </state>
           </provider>
@@ -40,20 +50,8 @@
       <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3585">
-              <caret line="239" selection-start-line="239" selection-end-line="239" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="project2.py" pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/project2.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4800">
-              <caret line="325" selection-start-line="325" selection-end-line="325" />
-              <folding>
-                <element signature="e#325#334#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-493">
+              <caret line="206" column="55" selection-start-line="206" selection-start-column="55" selection-end-line="206" selection-end-column="55" />
             </state>
           </provider>
         </entry>
@@ -77,6 +75,10 @@
       <find>chromoso</find>
       <find>chromosomelis</find>
       <find>allda</find>
+      <find>randint(</find>
+      <find>not</find>
+      <find>mutation</find>
+      <find>mutate(</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -85,6 +87,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
+        <option value="$USER_HOME$/Desktop/CourseScheduler-master/main.py" />
         <option value="$PROJECT_DIR$/AI.py" />
       </list>
     </option>
@@ -99,16 +102,15 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="-1" />
-    <option name="width" value="1366" />
-    <option name="height" value="741" />
+    <option name="x" value="195" />
+    <option name="width" value="1151" />
+    <option name="height" value="561" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -120,6 +122,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -188,7 +191,7 @@
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32967034" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49926794" visible="true" weight="0.32967034" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49926794" visible="true" weight="0.6310832" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24963397" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
@@ -230,19 +233,71 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/AI.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3450">
+          <caret line="230" column="24" lean-forward="true" selection-start-line="230" selection-start-column="24" selection-end-line="230" selection-end-column="24" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#242#286#0" />
+            <element signature="e#310#452#0" />
+            <element signature="e#473#734#0" />
+            <element signature="e#758#876#0" />
+            <element signature="e#965#1316#0" />
+            <element signature="e#1349#1371#0" />
+            <element signature="e#1413#2144#0" />
+            <element signature="e#2209#2506#0" />
+            <element signature="e#2228#2478#0" />
+            <element signature="e#2227#2466#0" />
+            <element signature="e#2326#3057#0" />
+            <element signature="e#5183#5281#0" />
+            <element signature="e#5309#6563#0" />
+            <element signature="e#6608#6745#0" />
+            <element signature="e#6873#7492#0" />
+            <element signature="e#8531#8693#0" />
+            <element signature="e#8719#9617#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3585">
+          <caret line="239" selection-start-line="239" selection-end-line="239" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/project2.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4800">
+          <caret line="325" selection-start-line="325" selection-end-line="325" />
+          <folding>
+            <element signature="e#325#334#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/AI.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2670">
           <caret line="178" column="34" lean-forward="true" selection-start-line="178" selection-start-column="34" selection-end-line="178" selection-end-column="34" />
           <folding>
-            <element signature="e#166#308#0" />
-            <element signature="e#329#590#0" />
-            <element signature="e#614#732#0" />
-            <element signature="e#820#1171#0" />
-            <element signature="e#1204#1226#0" />
-            <element signature="e#1268#1930#0" />
-            <element signature="e#1928#2519#0" />
-            <element signature="e#2563#3948#0" />
-            <element signature="e#3977#4075#0" />
-            <element signature="e#5622#6206#0" />
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#242#286#0" />
+            <element signature="e#310#452#0" />
+            <element signature="e#473#734#0" />
+            <element signature="e#758#876#0" />
+            <element signature="e#965#1316#0" />
+            <element signature="e#1349#1371#0" />
+            <element signature="e#1413#2144#0" />
+            <element signature="e#2209#2506#0" />
+            <element signature="e#2228#2478#0" />
+            <element signature="e#2227#2466#0" />
+            <element signature="e#2326#3057#0" />
+            <element signature="e#5183#5281#0" />
+            <element signature="e#5309#6563#0" />
+            <element signature="e#6608#6745#0" />
+            <element signature="e#6873#7492#0" />
+            <element signature="e#8531#8693#0" />
+            <element signature="e#8719#9617#0" />
           </folding>
         </state>
       </provider>
@@ -269,16 +324,24 @@
         <state relative-caret-position="15">
           <caret line="1" column="25" lean-forward="true" selection-start-line="1" selection-start-column="25" selection-end-line="1" selection-end-column="25" />
           <folding>
-            <element signature="e#166#308#0" />
-            <element signature="e#329#590#0" />
-            <element signature="e#614#732#0" />
-            <element signature="e#820#1171#0" />
-            <element signature="e#1204#1226#0" />
-            <element signature="e#1268#1930#0" />
-            <element signature="e#1928#2519#0" />
-            <element signature="e#2563#3948#0" />
-            <element signature="e#3977#4075#0" />
-            <element signature="e#5622#6206#0" />
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#242#286#0" />
+            <element signature="e#310#452#0" />
+            <element signature="e#473#734#0" />
+            <element signature="e#758#876#0" />
+            <element signature="e#965#1316#0" />
+            <element signature="e#1349#1371#0" />
+            <element signature="e#1413#2144#0" />
+            <element signature="e#2209#2506#0" />
+            <element signature="e#2228#2478#0" />
+            <element signature="e#2227#2466#0" />
+            <element signature="e#2326#3057#0" />
+            <element signature="e#5183#5281#0" />
+            <element signature="e#5309#6563#0" />
+            <element signature="e#6608#6745#0" />
+            <element signature="e#6873#7492#0" />
+            <element signature="e#8531#8693#0" />
+            <element signature="e#8719#9617#0" />
           </folding>
         </state>
       </provider>
@@ -309,7 +372,7 @@
     </entry>
     <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/project2.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4800">
+        <state relative-caret-position="4875">
           <caret line="325" selection-start-line="325" selection-end-line="325" />
           <folding>
             <element signature="e#325#334#0" expanded="true" />
@@ -319,26 +382,34 @@
     </entry>
     <entry file="file://$USER_HOME$/Desktop/CourseScheduler-master/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3585">
-          <caret line="239" selection-start-line="239" selection-end-line="239" />
+        <state relative-caret-position="-493">
+          <caret line="206" column="55" selection-start-line="206" selection-start-column="55" selection-end-line="206" selection-end-column="55" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/AI.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1494">
-          <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
+        <state relative-caret-position="320">
+          <caret line="306" column="8" lean-forward="true" selection-start-line="306" selection-start-column="8" selection-end-line="306" selection-end-column="8" />
           <folding>
-            <element signature="e#166#308#0" />
-            <element signature="e#329#590#0" />
-            <element signature="e#614#732#0" />
-            <element signature="e#820#1171#0" />
-            <element signature="e#1204#1226#0" />
-            <element signature="e#1268#1930#0" />
-            <element signature="e#1928#2519#0" />
-            <element signature="e#2563#3948#0" />
-            <element signature="e#3977#4075#0" />
-            <element signature="e#5622#6206#0" />
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#242#286#0" />
+            <element signature="e#310#452#0" />
+            <element signature="e#473#734#0" />
+            <element signature="e#758#876#0" />
+            <element signature="e#965#1316#0" />
+            <element signature="e#1349#1371#0" />
+            <element signature="e#1413#2144#0" />
+            <element signature="e#2209#2506#0" />
+            <element signature="e#2228#2478#0" />
+            <element signature="e#2227#2466#0" />
+            <element signature="e#2326#3057#0" />
+            <element signature="e#5183#5281#0" />
+            <element signature="e#5309#6563#0" />
+            <element signature="e#6608#6745#0" />
+            <element signature="e#6873#7492#0" />
+            <element signature="e#8531#8693#0" />
+            <element signature="e#8719#9617#0" />
           </folding>
         </state>
       </provider>

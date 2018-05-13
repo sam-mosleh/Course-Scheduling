@@ -3,10 +3,16 @@ from typing import List, Any
 import pandas as pd
 from pandas import *
 from random import *
-
+import threading
+import time
 # Defining infinity number
 maxInfinity = 1000000
-stageSize = 400
+stageSize = 500
+
+# returns random element of a list x
+def randE(x):
+    ri = randint(0, len(x) - 1)
+    return x[ri]
 
 class Instructor:
     def __init__(self, f_name):
@@ -31,12 +37,11 @@ class Classroom:
 
 
 class Chromosome:
-    def __init__(self, f_mutationProb=50, f_mutateSize=20):
+    def __init__(self, f_mutateSize=20):
         # Size of a chromosome is 5(Days)*4(Times)*Number of classes
         # Schedule contains ID of instructor and course
         self.scheduleSize = 5*4*len(classrooms)
         self.schedule = [(-1, -1) for i in range(self.scheduleSize)]
-        self.mutationProbability = f_mutationProb
         self.mutationSize = f_mutateSize
         self.__myScore = 0
 
@@ -52,19 +57,50 @@ class Chromosome:
 
         for randCours in range(len(courses)):
             for repT in range(courses[randCours].timesInWeek):
-                ri = randint(0, len(courses[randCours].presentors) - 1)
-                randInst = courses[randCours].presentors[ri]
+                # ri = randint(0, len(courses[randCours].presentors) - 1)
+                # randInst = courses[randCours].presentors[ri]
+                randInst = randE(courses[randCours].presentors)
                 rs = randint(0, self.scheduleSize-1)
                 while self.schedule[rs][0] != -1:
                     rs = randint(0, self.scheduleSize - 1)
                 self.schedule[rs] = (randInst, randCours)
-                #print(rs, randInst, randCours)
+                # print(rs, randInst, randCours)
         self.fitnessCalculation()
 
-    def mutate(self):
-        if randint(0,100)>self.mutationProbability:
-            return
-        # Swap 2 blocks in chromosome doing it mutationSize times
+    # Mutation function default by 50% chance to mutate
+    def mutate(self, f_swapProb=30, f_instProb=15, f_coursProb=15):
+        randprob = randint(0, 100)
+        if randprob <= f_swapProb:
+            self.mutateBySawp()
+
+        randprob = randint(0, 100)
+        if randprob <= f_instProb:
+            self.mutateByInstructor()
+
+        randprob = randint(0, 100)
+        if randprob <= f_coursProb:
+            self.mutateByCourse()
+
+    # Change one instractor's Course
+    def mutateByCourse(self):
+        for i in range(self.mutationSize):
+            randSch = randint(0, self.scheduleSize - 1)
+            # Is randSch valid?
+            if self.schedule[randSch][0] != -1:
+                randCourse = randE(instructorsList[self.schedule[randSch][0]].courseList)
+                self.schedule[randSch] = self.schedule[randSch][0], randCourse
+
+    # Change one course's Instructor
+    def mutateByInstructor(self):
+        for i in range(self.mutationSize):
+            randSch = randint(0, self.scheduleSize - 1)
+            # Is randSch valid?
+            if self.schedule[randSch][0] != -1:
+                randInst = randE(courses[self.schedule[randSch][1]].presentors)
+                self.schedule[randSch] = randInst, self.schedule[randSch][1]
+
+    # Swap 2 blocks in chromosome doing it mutationSize times
+    def mutateBySawp(self):
         for i in range(self.mutationSize):
             randSch1 = randint(0, self.scheduleSize - 1)
             randSch2 = randint(0, self.scheduleSize - 1)
@@ -72,13 +108,14 @@ class Chromosome:
                 randSch1 = randint(0, self.scheduleSize - 1)
                 randSch2 = randint(0, self.scheduleSize - 1)
             self.schedule[randSch1], self.schedule[randSch2] = self.schedule[randSch2], self.schedule[randSch1]
+
         self.fitnessCalculation()
 
     def fitnessCalculation(self):
         score = 0
         # Located with enough seats (Course cont and class cap)
         for i in range(self.scheduleSize):
-            if self.schedule[i][0]!=-1 and courses[self.schedule[i][1]].containing <= classrooms[classDayTime(i)[0]].capacity:
+            if self.schedule[i][0] != -1 and courses[self.schedule[i][1]].containing <= classrooms[classDayTime(i)[0]].capacity:
                 score += 1
 
         # Professor is not busy
@@ -109,6 +146,25 @@ class Chromosome:
                     indSch += 20
                 if flagDars == _not_taught:
                     score += 1
+
+        # Course has been taught more than enough
+        courseStats={}
+        for i, j in self.schedule:
+            if i != -1 :
+                if j not in courseStats:
+                    courseStats[j] = [i, ]
+                else:
+                    courseStats[j].append(i)
+        for i in courseStats:
+            if len(courseStats[i]) <= courses[i].timesInWeek:
+                score += 40
+            if len(list(set(courseStats[i]))) == 1:
+                score += 40
+
+        # Instructors are available on that time
+        for i in range(self.scheduleSize):
+            if instructorsList[self.schedule[i][0]].freeTimes[i % 20]:
+                score += 5
         self.__myScore = score
 
 def classDayTime(f_n):
@@ -163,7 +219,7 @@ def initChromosomes(f_numberOfNodes):
 
 
 # Crossover (Child) of two Chromosomes
-def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=10):
+def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=20):
     chromoSize = chrom1.scheduleSize
     newChromo=Chromosome()
     crossoverPoints = {}
@@ -182,26 +238,55 @@ def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=10)
     newChromo.fitnessCalculation()
     return newChromo
 
-
 # Selection algorithm and Iteration
 def chromosomSelector(f_selectedNodes=30):
     global chromosomeList
     selectionList = []
     chromosomeList.sort(key=lambda x: x.scoring())
     for i in range(f_selectedNodes):
-        randChro1 = randint(0, stageSize-1)
-        randChro2 = randint(0, stageSize-1)
-        #print(randChro1, randChro2, len(chromosomeList))
-        newChro = crossover(chromosomeList[randChro1], chromosomeList[randChro2])
+        randChromo1 = randE(chromosomeList)
+        randChromo2 = randE(chromosomeList)
+        newChro = crossover(randChromo1, randChromo2)
         newChro.mutate()
         selectionList.append(newChro)
-    tmpIndex = 0
-    tmpJndx = 0
-    while tmpJndx < len(selectionList):
-        if selectionList[tmpJndx].scoring() > chromosomeList[tmpIndex].scoring():
-            chromosomeList[tmpIndex] = selectionList[0]
-            tmpIndex += 1
-        tmpJndx += 1
+
+    # Only replcaing with some bad chromosomes
+    chromosomeList[10:10+len(selectionList)] = selectionList[:]
+    # Making better worst cases
+    # tmpIndex = 0
+    # tmpJndx = 0
+    # while tmpJndx < len(selectionList):
+    #     if selectionList[tmpJndx].scoring() > chromosomeList[tmpIndex].scoring():
+    #         chromosomeList[tmpIndex] = selectionList[0]
+    #         tmpIndex += 1
+    #     tmpJndx += 1
+
+def myLoop(x):
+    print('Stage size:', len(chromosomeList))
+    for tek in range(x):
+        for i in range(stageSize):
+            chromosomSelector()
+        print(chromosomeList[-1].scoring())
+
+def writeToExcel():
+    tim = ['8 - 10', '10 - 12', '14 - 16', '16 - 18']
+    time_table_dict = {'Class': [], 'Day': [], 'Time': [], 'Course': [], 'Professor': []}
+    # print([i for i in allDays])
+    for i in range(chromosomeList[-1].scheduleSize):
+        tmpSch = chromosomeList[-1].schedule[i]
+        if tmpSch[0] != -1:
+            # print(i,classDayTime(i))
+            time_table_dict['Class'].append(classrooms[classDayTime(i)[0]].className)
+            time_table_dict['Day'].append(allDays[classDayTime(i)[1]])
+            time_table_dict['Time'].append(tim[classDayTime(i)[2]])
+            time_table_dict['Course'].append(courses[tmpSch[1]].courseName)
+            time_table_dict['Professor'].append(instructorsList[tmpSch[0]].instructorName)
+
+    time_table = pd.DataFrame(time_table_dict)
+    writer = ExcelWriter('Time_Table.xlsx')
+    time_table.to_excel(writer, 'Sheet1', index=False)
+    writer.save()
+
 
 # Initialize Global variables
 allDays = []
@@ -214,51 +299,23 @@ chromosomeList = []  # type: List[Chromosome]
 readFromExcel()
 
 initChromosomes(stageSize)
-# for i in range(100):
-#     chromosomSelector()
-#print([i.scoring() for i in chromosomeList])
-for i in range(400):
-    chromosomSelector()
-print(chromosomeList[-1].scoring())
-for i in range(400):
-    chromosomSelector()
-print(chromosomeList[-1].scoring())
-for i in range(400):
-    chromosomSelector()
-print(chromosomeList[-1].scoring())
-for i in range(400):
-    chromosomSelector()
-print(chromosomeList[-1].scoring())
-for i in range(400):
-    chromosomSelector()
-print(chromosomeList[-1].scoring())
-#print([i.scoring() for i in chromosomeList])
-# print(len(chromosomeList))
-# print(chromosomeList[0].schedule)
-# print(chromosomeList[1].schedule)
-# chrNC = crossover(chromosomeList[0],chromosomeList[1])
-# print(chrNC.schedule)
-# chromosomeList[0].fitnessCalculation()
-# chromosomeList[1].fitnessCalculation()
-# chrNC.fitnessCalculation()
-# print(chromosomeList[0].scoring())
-# print(chromosomeList[1].scoring())
-# print(chrNC.scoring())
 
-tim = ['8 - 10', '10 - 12', '14 - 16', '16 - 18']
-time_table_dict = {'Class': [], 'Day': [], 'Time': [], 'Course': [], 'Professor': []}
-#print([i for i in allDays])
-for i in range(chromosomeList[-1].scheduleSize):
-    tmpSch = chromosomeList[-1].schedule[i]
-    if tmpSch[0] != -1:
-        #print(i,classDayTime(i))
-        time_table_dict['Class'].append(classrooms[classDayTime(i)[0]].className)
-        time_table_dict['Day'].append(allDays[classDayTime(i)[1]])
-        time_table_dict['Time'].append(tim[classDayTime(i)[2]])
-        time_table_dict['Course'].append(courses[tmpSch[1]].courseName)
-        time_table_dict['Professor'].append(instructorsList[tmpSch[0]].instructorName)
+beforeStarting = time.time()
+myLoop(50)
+print(time.time() - beforeStarting)
+tmpCourses = {}
+allc = 0
+for i, j in chromosomeList[-1].schedule:
+    if j != -1:
+        if i == -1:
+            print(i, j)
+        if j not in tmpCourses:
+            tmpCourses[j] = [i, ]
+            allc += 1
+        else:
+            tmpCourses[j].append(i)
 
-time_table = pd.DataFrame(time_table_dict)
-writer = ExcelWriter('Time_Table.xlsx')
-time_table.to_excel(writer, 'Sheet1', index=False)
-writer.save()
+print('diffrent courses=', allc)
+for i in tmpCourses:
+    print(i, tmpCourses[i])
+writeToExcel()
