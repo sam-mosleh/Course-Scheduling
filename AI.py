@@ -1,5 +1,5 @@
 from typing import List, Any
-
+import multiprocessing as mp
 import pandas as pd
 from pandas import *
 from random import *
@@ -238,34 +238,50 @@ def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=20)
     newChromo.fitnessCalculation()
     return newChromo
 
+
 # Selection algorithm and Iteration
-def chromosomSelector(f_selectedNodes=30):
-    global chromosomeList
+def chromosomeSelector(f_allChromosoms,f_selectedNodes=30):
     selectionList = []
-    chromosomeList.sort(key=lambda x: x.scoring())
+    f_allChromosoms.sort(key=lambda x: x.scoring())
     for i in range(f_selectedNodes):
-        randChromo1 = randE(chromosomeList)
-        randChromo2 = randE(chromosomeList)
+        randChromo1 = randE(f_allChromosoms)
+        randChromo2 = randE(f_allChromosoms)
         newChro = crossover(randChromo1, randChromo2)
         newChro.mutate()
         selectionList.append(newChro)
 
     # Only replcaing with some bad chromosomes
-    chromosomeList[10:10+len(selectionList)] = selectionList[:]
-    # Making better worst cases
-    # tmpIndex = 0
-    # tmpJndx = 0
-    # while tmpJndx < len(selectionList):
-    #     if selectionList[tmpJndx].scoring() > chromosomeList[tmpIndex].scoring():
-    #         chromosomeList[tmpIndex] = selectionList[0]
-    #         tmpIndex += 1
-    #     tmpJndx += 1
+    f_allChromosoms[10:10+len(selectionList)] = selectionList[:]
+    return f_allChromosoms
 
-def myLoop(x):
+
+def oneScene():
+    tempChromoList = chromosomeList[:]
+    for i in range(stageSize):
+        tempChromoList = chromosomeSelector(tempChromoList)
+    return tempChromoList
+
+def multiProcess(x):
+    global chromosomeList
     print('Stage size:', len(chromosomeList))
     for tek in range(x):
-        for i in range(stageSize):
-            chromosomSelector()
+        myPool = mp.Pool()
+        processList = []
+        resultList = []  # type: List[List[Chromosome]]
+        for x in range(4):
+            processList.append(myPool.apply_async(oneScene))
+        for x in range(4):
+            resultList.append(processList[x].get())
+        # Select best Chromosome list of the resultList
+        delta = 0
+        bestIndex = 0
+        for i in range(4):
+            # best + (best-worst)
+            tmpDelta = 2 * resultList[i][-1].scoring() - resultList[i][0].scoring()
+            if delta < tmpDelta:
+                bestIndex = i
+                delta = tmpDelta
+        chromosomeList = resultList[bestIndex]
         print(chromosomeList[-1].scoring())
 
 def writeToExcel():
@@ -300,9 +316,12 @@ readFromExcel()
 
 initChromosomes(stageSize)
 
+
 beforeStarting = time.time()
-myLoop(50)
+#myLoop(20)
+multiProcess(20)
 print(time.time() - beforeStarting)
+
 tmpCourses = {}
 allc = 0
 for i, j in chromosomeList[-1].schedule:
@@ -318,4 +337,5 @@ for i, j in chromosomeList[-1].schedule:
 print('diffrent courses=', allc)
 for i in tmpCourses:
     print(i, tmpCourses[i])
+
 writeToExcel()
