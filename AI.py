@@ -46,7 +46,7 @@ class Chromosome:
         self.__myScore = 0
 
     def scoring(self):
-        return self.__myScore;
+        return self.__myScore
 
     def randomInitialize(self):
         # Fill it randomly
@@ -67,21 +67,29 @@ class Chromosome:
                 # print(rs, randInst, randCours)
         self.fitnessCalculation()
 
-    # Mutation function default by 50% chance to mutate
-    def mutate(self, f_swapProb=30, f_instProb=15, f_coursProb=15):
+    # Mutation function default by under 50% chance to mutate
+    def mutate(self, f_swapProb=10, f_instProb=5, f_coursProb=5, f_addProb=2, f_removeProb=2):
         randprob = randint(0, 100)
         if randprob <= f_swapProb:
             self.mutateBySawp()
 
         randprob = randint(0, 100)
         if randprob <= f_instProb:
-            self.mutateByInstructor()
+            self.mutateByChangingInstructor()
 
         randprob = randint(0, 100)
         if randprob <= f_coursProb:
             self.mutateByCourse()
 
-    # Change one instractor's Course
+        randprob = randint(0, 100)
+        if randprob <= f_addProb:
+            self.mutateByAdding()
+
+        randprob = randint(0, 100)
+        if randprob <= f_removeProb:
+            self.mutateByRemoving()
+
+    # Change one instructor's Course
     def mutateByCourse(self):
         for i in range(self.mutationSize):
             randSch = randint(0, self.scheduleSize - 1)
@@ -91,13 +99,29 @@ class Chromosome:
                 self.schedule[randSch] = self.schedule[randSch][0], randCourse
 
     # Change one course's Instructor
-    def mutateByInstructor(self):
+    def mutateByChangingInstructor(self):
         for i in range(self.mutationSize):
             randSch = randint(0, self.scheduleSize - 1)
             # Is randSch valid?
             if self.schedule[randSch][0] != -1:
                 randInst = randE(courses[self.schedule[randSch][1]].presentors)
                 self.schedule[randSch] = randInst, self.schedule[randSch][1]
+
+    # Add instructor to one class and time
+    def mutateByAdding(self):
+        for i in range(self.mutationSize):
+            randSch = randint(0, self.scheduleSize - 1)
+            if self.schedule[randSch][0] == -1:
+                randInst = randint(0, len(instructorsList)-1)
+                randCours = randE(instructorsList[randInst].courseList)
+                self.schedule[randSch] = randInst, randCours
+
+    # Remove one class and time
+    def mutateByRemoving(self):
+        for i in range(self.mutationSize):
+            randSch = randint(0, self.scheduleSize - 1)
+            if self.schedule[randSch][0] != -1:
+                self.schedule[randSch] = -1, -1
 
     # Swap 2 blocks in chromosome doing it mutationSize times
     def mutateBySawp(self):
@@ -148,23 +172,25 @@ class Chromosome:
                     score += 1
 
         # Course has been taught more than enough
-        courseStats={}
+        courseStats = {}
         for i, j in self.schedule:
-            if i != -1 :
+            if i != -1:
                 if j not in courseStats:
                     courseStats[j] = [i, ]
                 else:
                     courseStats[j].append(i)
         for i in courseStats:
             if len(courseStats[i]) <= courses[i].timesInWeek:
-                score += 40
+                score += 70
+
             if len(list(set(courseStats[i]))) == 1:
-                score += 40
+                score += 70
 
         # Instructors are available on that time
         for i in range(self.scheduleSize):
             if instructorsList[self.schedule[i][0]].freeTimes[i % 20]:
                 score += 5
+
         self.__myScore = score
 
 def classDayTime(f_n):
@@ -239,43 +265,55 @@ def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=20)
     return newChromo
 
 
+# 0-1 -> 1-4
+def probMapper(f_prob, f_num):
+    return (3 * f_prob + 1) * f_num
+
+
 # Selection algorithm and Iteration
-def chromosomeSelector(f_allChromosoms,f_selectedNodes=30):
+def chromosomeSelector(f_allChromosoms, f_progress, f_selectedNodes=30, f_savedBadChromosomes=30):
     selectionList = []
     f_allChromosoms.sort(key=lambda x: x.scoring())
     for i in range(f_selectedNodes):
         randChromo1 = randE(f_allChromosoms)
         randChromo2 = randE(f_allChromosoms)
         newChro = crossover(randChromo1, randChromo2)
-        newChro.mutate()
+        #newChro.mutate()
+        newChro.mutate(probMapper(f_progress, 10),
+                       probMapper(f_progress, 5),
+                       probMapper(f_progress, 5),
+                       probMapper(f_progress, 2),
+                       probMapper(f_progress, 2))
+
         selectionList.append(newChro)
 
     # Only replcaing with some bad chromosomes
-    f_allChromosoms[10:10+len(selectionList)] = selectionList[:]
+    f_allChromosoms[f_savedBadChromosomes:f_savedBadChromosomes+f_selectedNodes] = selectionList[:]
     return f_allChromosoms
 
 
-def oneScene():
+def oneScene(iterProgress):
     tempChromoList = chromosomeList[:]
     for i in range(stageSize):
-        tempChromoList = chromosomeSelector(tempChromoList)
+        tempChromoList = chromosomeSelector(tempChromoList, iterProgress)
     return tempChromoList
 
-def multiProcess(x):
+
+def multiProcess(f_numberOfIteration, f_numberOfCores=1):
     global chromosomeList
     print('Stage size:', len(chromosomeList))
-    for tek in range(x):
+    for tek in range(f_numberOfIteration):
         myPool = mp.Pool()
         processList = []
         resultList = []  # type: List[List[Chromosome]]
-        for x in range(4):
-            processList.append(myPool.apply_async(oneScene))
-        for x in range(4):
+        for x in range(f_numberOfCores):
+            processList.append(myPool.apply_async(oneScene, (tek/f_numberOfIteration, )))
+        for x in range(f_numberOfCores):
             resultList.append(processList[x].get())
         # Select best Chromosome list of the resultList
         delta = 0
         bestIndex = 0
-        for i in range(4):
+        for i in range(f_numberOfCores):
             # best + (best-worst)
             tmpDelta = 2 * resultList[i][-1].scoring() - resultList[i][0].scoring()
             if delta < tmpDelta:
@@ -283,6 +321,24 @@ def multiProcess(x):
                 delta = tmpDelta
         chromosomeList = resultList[bestIndex]
         print(chromosomeList[-1].scoring())
+
+
+def printCourses():
+    tmpCourses = {}
+    allc = 0
+    for i, j in chromosomeList[-1].schedule:
+        if j != -1:
+            if i == -1:
+                print(i, j)
+            if j not in tmpCourses:
+                tmpCourses[j] = [i, ]
+                allc += 1
+            else:
+                tmpCourses[j].append(i)
+    print('diffrent courses=', allc)
+    for i in tmpCourses:
+        print(i, tmpCourses[i])
+
 
 def writeToExcel():
     tim = ['8 - 10', '10 - 12', '14 - 16', '16 - 18']
@@ -313,29 +369,11 @@ chromosomeList = []  # type: List[Chromosome]
 
 # Start reading
 readFromExcel()
-
+# Initialize the Stage list
 initChromosomes(stageSize)
-
-
+# Start timing and processing
 beforeStarting = time.time()
-#myLoop(20)
-multiProcess(20)
+multiProcess(20, 4)
 print(time.time() - beforeStarting)
-
-tmpCourses = {}
-allc = 0
-for i, j in chromosomeList[-1].schedule:
-    if j != -1:
-        if i == -1:
-            print(i, j)
-        if j not in tmpCourses:
-            tmpCourses[j] = [i, ]
-            allc += 1
-        else:
-            tmpCourses[j].append(i)
-
-print('diffrent courses=', allc)
-for i in tmpCourses:
-    print(i, tmpCourses[i])
-
+printCourses()
 writeToExcel()
