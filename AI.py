@@ -7,12 +7,17 @@ import threading
 import time
 # Defining infinity number
 maxInfinity = 1000000
-stageSize = 500
+stageSize = 200
+
 
 # returns random element of a list x
-def randE(x):
-    ri = randint(0, len(x) - 1)
+def randE(x, f_lastMore = 0):
+    if not f_lastMore:
+        ri = randint(0, len(x) - 1)
+    else:
+        ri = randint(3*len(x)/4, len(x)-1)
     return x[ri]
+
 
 class Instructor:
     def __init__(self, f_name):
@@ -37,12 +42,11 @@ class Classroom:
 
 
 class Chromosome:
-    def __init__(self, f_mutateSize=20):
+    def __init__(self):
         # Size of a chromosome is 5(Days)*4(Times)*Number of classes
         # Schedule contains ID of instructor and course
         self.scheduleSize = 5*4*len(classrooms)
         self.schedule = [(-1, -1) for i in range(self.scheduleSize)]
-        self.mutationSize = f_mutateSize
         self.__myScore = 0
 
     def scoring(self):
@@ -67,74 +71,77 @@ class Chromosome:
                 # print(rs, randInst, randCours)
         self.fitnessCalculation()
 
-    # Mutation function default by under 50% chance to mutate
-    def mutate(self, f_swapProb=10, f_instProb=5, f_coursProb=5, f_addProb=2, f_removeProb=2):
-        randprob = randint(0, 100)
-        if randprob <= f_swapProb:
-            self.mutateBySawp()
 
-        randprob = randint(0, 100)
+    def mutate(self, f_swapProb=0.01, f_instProb=0.003, f_coursProb=0.003, f_addProb=0.003, f_inverseProb=0.001):
+        randprob = random()
+        if randprob <= f_swapProb:
+            self.mutateBySwap()
+
+        randprob = random()
         if randprob <= f_instProb:
             self.mutateByChangingInstructor()
 
-        randprob = randint(0, 100)
+        randprob = random()
         if randprob <= f_coursProb:
             self.mutateByCourse()
 
-        randprob = randint(0, 100)
+        randprob = random()
         if randprob <= f_addProb:
             self.mutateByAdding()
 
-        randprob = randint(0, 100)
-        if randprob <= f_removeProb:
-            self.mutateByRemoving()
+        randprob = random()
+        if randprob <= f_inverseProb:
+            self.mutateByInversing()
 
     # Change one instructor's Course
     def mutateByCourse(self):
-        for i in range(self.mutationSize):
-            randSch = randint(0, self.scheduleSize - 1)
-            # Is randSch valid?
-            if self.schedule[randSch][0] != -1:
-                randCourse = randE(instructorsList[self.schedule[randSch][0]].courseList)
-                self.schedule[randSch] = self.schedule[randSch][0], randCourse
+        randSch = randrange(self.scheduleSize)
+        # Is randSch valid?
+        if self.schedule[randSch][0] != -1:
+            randCourse = randE(instructorsList[self.schedule[randSch][0]].courseList)
+            self.schedule[randSch] = self.schedule[randSch][0], randCourse
 
     # Change one course's Instructor
     def mutateByChangingInstructor(self):
-        for i in range(self.mutationSize):
-            randSch = randint(0, self.scheduleSize - 1)
-            # Is randSch valid?
-            if self.schedule[randSch][0] != -1:
-                randInst = randE(courses[self.schedule[randSch][1]].presentors)
-                self.schedule[randSch] = randInst, self.schedule[randSch][1]
+        randSch = randrange(self.scheduleSize)
+        # Is randSch valid?
+        if self.schedule[randSch][0] != -1:
+            randInst = randE(courses[self.schedule[randSch][1]].presentors)
+            self.schedule[randSch] = randInst, self.schedule[randSch][1]
 
     # Add instructor to one class and time
     def mutateByAdding(self):
-        for i in range(self.mutationSize):
-            randSch = randint(0, self.scheduleSize - 1)
-            if self.schedule[randSch][0] == -1:
-                randInst = randint(0, len(instructorsList)-1)
-                randCours = randE(instructorsList[randInst].courseList)
-                self.schedule[randSch] = randInst, randCours
+        randSch = randrange(self.scheduleSize)
+        if self.schedule[randSch][0] == -1:
+            randInst = randint(0, len(instructorsList)-1)
+            randCours = randE(instructorsList[randInst].courseList)
+            self.schedule[randSch] = randInst, randCours
 
     # Remove one class and time
-    def mutateByRemoving(self):
-        for i in range(self.mutationSize):
-            randSch = randint(0, self.scheduleSize - 1)
-            if self.schedule[randSch][0] != -1:
-                self.schedule[randSch] = -1, -1
+    # def mutateByRemoving(self):
+    #     for i in range(self.mutationSize):
+    #         randSch = randint(0, self.scheduleSize - 1)
+    #         if self.schedule[randSch][0] != -1:
+    #             self.schedule[randSch] = -1, -1
 
     # Swap 2 blocks in chromosome doing it mutationSize times
-    def mutateBySawp(self):
-        for i in range(self.mutationSize):
-            randSch1 = randint(0, self.scheduleSize - 1)
-            randSch2 = randint(0, self.scheduleSize - 1)
-            while randSch1==randSch2:
-                randSch1 = randint(0, self.scheduleSize - 1)
-                randSch2 = randint(0, self.scheduleSize - 1)
-            self.schedule[randSch1], self.schedule[randSch2] = self.schedule[randSch2], self.schedule[randSch1]
+    def mutateBySwap(self):
+        randSch1 = randrange(self.scheduleSize)
+        randSch2 = randrange(self.scheduleSize)
+        self.schedule[randSch1], self.schedule[randSch2] = self.schedule[randSch2], self.schedule[randSch1]
 
-        self.fitnessCalculation()
+    # Inverse an interval
+    def mutateByInversing(self):
+        randSch1 = randrange(self.scheduleSize)
+        randSch2 = randrange(self.scheduleSize)
+        if randSch1 > randSch2:
+            randSch1, randSch2 = randSch2, randSch1
+        indexNum = 0
+        while randSch1 + indexNum < randSch2 - indexNum:
+            self.schedule[randSch1 + indexNum], self.schedule[randSch2 - indexNum] = self.schedule[randSch2 - indexNum], self.schedule[randSch1 + indexNum]
+            indexNum += 1
 
+    # Calculate score of the chromosome
     def fitnessCalculation(self):
         score = 0
         # Located with enough seats (Course cont and class cap)
@@ -181,15 +188,21 @@ class Chromosome:
                     courseStats[j].append(i)
         for i in courseStats:
             if len(courseStats[i]) <= courses[i].timesInWeek:
-                score += 70
-
+                score += 1
+            else:
+                score -= len(courseStats[i]) - courses[i].timesInWeek
             if len(list(set(courseStats[i]))) == 1:
-                score += 70
+                score += 1
+            else:
+                score -= len(list(set(courseStats[i]))) - 1
 
         # Instructors are available on that time
         for i in range(self.scheduleSize):
-            if instructorsList[self.schedule[i][0]].freeTimes[i % 20]:
-                score += 5
+            if self.schedule[i][0] != -1:
+                if instructorsList[self.schedule[i][0]].freeTimes[i % 20]:
+                    score += 1
+                else:
+                    score -= 1
 
         self.__myScore = score
 
@@ -237,90 +250,40 @@ def readFromExcel():
         instructorsList.append(newIns)
 
 
-def initChromosomes(f_numberOfNodes):
+def initChromosomes(f_numberOfNodes, f_chromoList):
     for i in range(f_numberOfNodes):
         newChro = Chromosome()
         newChro.randomInitialize()
-        chromosomeList.append(newChro)
+        newChro.fitnessCalculation()
+        f_chromoList.append(newChro)
 
 
-# Crossover (Child) of two Chromosomes
-def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverPointNumber=20):
-    chromoSize = chrom1.scheduleSize
-    newChromo=Chromosome()
-    crossoverPoints = {}
-    while len(crossoverPoints) < f_crossoverPointNumber:
-        randPoint = randint(0, chromoSize-1)
-        if randPoint not in crossoverPoints:
-            crossoverPoints[randPoint] = 1
-    firstChoice = randint(0, 1)
-    for i in range(chromoSize):
-        if firstChoice:
-            newChromo.schedule[i] = chrom1.schedule[i]
-        else:
-            newChromo.schedule[i] = chrom2.schedule[i]
-        if i in crossoverPoints:
-            firstChoice = (not firstChoice)
-    newChromo.fitnessCalculation()
-    return newChromo
-
-
-# 0-1 -> 1-4
-def probMapper(f_prob, f_num):
-    return (3 * f_prob + 1) * f_num
-
-
-# Selection algorithm and Iteration
-def chromosomeSelector(f_allChromosoms, f_progress, f_selectedNodes=30, f_savedBadChromosomes=30):
-    selectionList = []
-    f_allChromosoms.sort(key=lambda x: x.scoring())
-    for i in range(f_selectedNodes):
-        randChromo1 = randE(f_allChromosoms)
-        randChromo2 = randE(f_allChromosoms)
-        newChro = crossover(randChromo1, randChromo2)
-        #newChro.mutate()
-        newChro.mutate(probMapper(f_progress, 10),
-                       probMapper(f_progress, 5),
-                       probMapper(f_progress, 5),
-                       probMapper(f_progress, 2),
-                       probMapper(f_progress, 2))
-
-        selectionList.append(newChro)
-
-    # Only replcaing with some bad chromosomes
-    f_allChromosoms[f_savedBadChromosomes:f_savedBadChromosomes+f_selectedNodes] = selectionList[:]
-    return f_allChromosoms
-
-
-def oneScene(iterProgress):
-    tempChromoList = chromosomeList[:]
-    for i in range(stageSize):
-        tempChromoList = chromosomeSelector(tempChromoList, iterProgress)
-    return tempChromoList
-
-
-def multiProcess(f_numberOfIteration, f_numberOfCores=1):
-    global chromosomeList
-    print('Stage size:', len(chromosomeList))
-    for tek in range(f_numberOfIteration):
-        myPool = mp.Pool()
-        processList = []
-        resultList = []  # type: List[List[Chromosome]]
-        for x in range(f_numberOfCores):
-            processList.append(myPool.apply_async(oneScene, (tek/f_numberOfIteration, )))
-        for x in range(f_numberOfCores):
-            resultList.append(processList[x].get())
-        # Select best Chromosome list of the resultList
-        delta = 0
-        bestIndex = 0
-        for i in range(f_numberOfCores):
-            # best + (best-worst)
-            tmpDelta = 2 * resultList[i][-1].scoring() - resultList[i][0].scoring()
-            if delta < tmpDelta:
-                bestIndex = i
-                delta = tmpDelta
-        chromosomeList = resultList[bestIndex]
-        print(chromosomeList[-1].scoring())
+# Offsprings of Crossover of Two Chromosomes
+def crossover(chrom1: Chromosome, chrom2: Chromosome, f_crossoverProb, f_crossoverPointNumber=8):
+    firstChromo = Chromosome()
+    secondChromo = Chromosome()
+    if f_crossoverProb < randrange(100):
+        crossoverPoints = {}
+        while len(crossoverPoints) < f_crossoverPointNumber:
+            randPoint = randrange(stageSize)
+            if randPoint not in crossoverPoints:
+                crossoverPoints[randPoint] = 1
+        firstChoice = randint(0, 1)
+        for i in range(chrom1.scheduleSize):
+            if firstChoice:
+                firstChromo.schedule[i] = chrom1.schedule[i]
+                secondChromo.schedule[i] = chrom2.schedule[i]
+            else:
+                firstChromo.schedule[i] = chrom2.schedule[i]
+                secondChromo.schedule[i] = chrom1.schedule[i]
+            if i in crossoverPoints:
+                firstChoice = (not firstChoice)
+        firstChromo.fitnessCalculation()
+        secondChromo.fitnessCalculation()
+    else:
+        firstChromo = chrom1
+        secondChromo = chrom2
+    return firstChromo, secondChromo
 
 
 def printCourses():
@@ -360,20 +323,185 @@ def writeToExcel():
     writer.save()
 
 
+# Gets sorted chromList and select by rank of chromosome
+def selectRandomByRank(f_chromList: List[Chromosome]):
+    uniformRandomSelect = randrange(stageSize*(stageSize + 1)/2)  # Sum of all ranks
+    # find the selection by binary search ==> [right,left]
+    rightBound = stageSize
+    leftBound = 1
+    mid = 0
+    while rightBound > leftBound:
+        mid = (rightBound + leftBound) // 2
+        nowSum = (mid * (mid + 1)) // 2
+        if nowSum > uniformRandomSelect:
+            rightBound = mid
+        elif nowSum < uniformRandomSelect:
+            leftBound = mid + 1
+        else:
+            break
+    return f_chromList[mid]
+
+
+def selectRandomByRWS(f_chromList: List[Chromosome]):
+    tmpSum = 0
+    for i in f_chromList:
+        tmpSum += i.scoring()
+    uniformRandomSelect = randrange(tmpSum)  # Sum of all ranks
+    resultInd = 0
+    while uniformRandomSelect > 0:
+        uniformRandomSelect -= f_chromList[resultInd].scoring()
+        resultInd += 1
+    return f_chromList[resultInd-1]
+
+
+# X with for main pop with negativity 0 and search pop with negativity 1
+def crossoverByCorrolate(f_chromeA, f_chromeB, f_negativity):
+    dist = 0
+    #print(f_chromeA.scheduleSize, f_chromeB.scheduleSize)
+    for i in range(f_chromeA.scheduleSize):
+        #print(i)
+        if f_chromeA.schedule[i] != f_chromeB.schedule[i]:
+            dist += 1
+    s = dist/stageSize
+    if f_negativity:
+        if s > 0.8:
+            return crossover(f_chromeA, f_chromeB, 20)
+        elif s < 0.2:
+            return crossover(f_chromeA, f_chromeB, 100)
+        else:
+            return crossover(f_chromeA, f_chromeB, 100 - 100 * s)
+    else:
+        if s > 0.8:
+            return crossover(f_chromeA, f_chromeB, 100)
+        elif s < 0.2:
+            return crossover(f_chromeA, f_chromeB, 20)
+        else:
+            return crossover(f_chromeA, f_chromeB, 100 * s)
+
+
+def makeGeneration(f_nowGeneration: List[Chromosome], f_ExploitOrExplore):
+    nextGeneration = [] # type: List[Chromosome]
+    for popIteration in range(stageSize//4):
+        #firstParentChromo = selectRandomByRank(f_nowGeneration)
+        #secondParentChromo = selectRandomByRank(f_nowGeneration)
+        firstParentChromo = selectRandomByRWS(f_nowGeneration)
+        secondParentChromo = selectRandomByRWS(f_nowGeneration)
+        firstOffspring, secondOffspring = crossoverByCorrolate(firstParentChromo, secondParentChromo, f_ExploitOrExplore)
+        if f_ExploitOrExplore == 0:
+            firstOffspring.mutate()
+            secondOffspring.mutate()
+        else:
+            firstOffspring.mutate(0.05, 0.015, 0.015, 0.015, 0.005)
+            secondOffspring.mutate(0.05, 0.015, 0.015, 0.015, 0.005)
+        firstOffspring.fitnessCalculation()
+        secondOffspring.fitnessCalculation()
+        nextGeneration.append(firstOffspring)
+        nextGeneration.append(secondOffspring)
+    return nextGeneration
+
+
+def hundredGen(f_gen: List[Chromosome], f_ExploitOrExplore):
+    tmpGen = f_gen[:]
+    for i in range(100):
+        tmpGen = makeGeneration(tmpGen, f_ExploitOrExplore)
+    return tmpGen
+
+
+def addBinarySearch(f_list, f_elem):
+    leftBound = 0
+    rightBound = len(f_list) - 1
+    mid = 0
+    while rightBound > leftBound:
+        mid = (leftBound + rightBound) // 2
+        if f_list[mid].scoring() > f_elem.scoring():
+            rightBound = mid - 1
+        elif f_list[mid].scoring() < f_elem.scoring():
+            leftBound = mid + 1
+        else:
+            break
+    f_list.insert(mid, f_elem)
+
+
+# Dual Population Genetic Algorithm
+def dualPopProcess(f_numberOfIterations: int, f_numberOfElitism: int):
+    lastGenerationPop = []  # type: List[Chromosome]
+    newGenerationPop = []  # type: List[Chromosome]
+    mainPop = []  # type: List[Chromosome]
+    searchPop = []  # type: List[Chromosome]
+    initChromosomes(stageSize, lastGenerationPop)
+    lastGenerationPop.sort(key=lambda x: x.scoring())
+
+    lastGenerationPop2 = []  # type: List[Chromosome]
+    newGenerationPop2 = []  # type: List[Chromosome]
+    mainPop2 = []  # type: List[Chromosome]
+    searchPop2 = []  # type: List[Chromosome]
+    initChromosomes(stageSize, lastGenerationPop2)
+    lastGenerationPop2.sort(key=lambda x: x.scoring())
+
+    for iterNum in range(f_numberOfIterations):
+        myPool = mp.Pool()
+        processList = list()
+        processList.append(myPool.apply_async(hundredGen, (lastGenerationPop, 0)))  # Do main population
+        processList.append(myPool.apply_async(hundredGen, (lastGenerationPop, 1)))  # Do searching pop
+        processList.append(myPool.apply_async(hundredGen, (lastGenerationPop2, 0)))
+        processList.append(myPool.apply_async(hundredGen, (lastGenerationPop2, 1)))
+        myPool.close()
+        myPool.join()
+
+        mainPop = processList[0].get()[:]
+        searchPop = processList[1].get()[:]
+        mainPop2 = processList[2].get()[:]
+        searchPop2 = processList[3].get()[:]
+
+        newGenerationPop.extend(mainPop)
+        newGenerationPop.extend(searchPop)
+        newGenerationPop.sort(key=lambda x: x.scoring())
+
+        newGenerationPop2.extend(mainPop2)
+        newGenerationPop2.extend(searchPop2)
+        newGenerationPop2.sort(key=lambda x: x.scoring())
+
+        # Elitism
+        newGenerationPop = newGenerationPop[f_numberOfElitism:]
+        for bigLast in lastGenerationPop[(-1)*f_numberOfElitism:]:
+            addBinarySearch(newGenerationPop, bigLast)
+        lastGenerationPop = newGenerationPop[:]
+        newGenerationPop.clear()
+
+        newGenerationPop2 = newGenerationPop2[f_numberOfElitism:]
+        for bigLast in lastGenerationPop2[(-1)*f_numberOfElitism:]:
+            addBinarySearch(newGenerationPop2, bigLast)
+        lastGenerationPop2 = newGenerationPop2[:]
+        newGenerationPop2.clear()
+
+    return lastGenerationPop, lastGenerationPop2
+
+
 # Initialize Global variables
+
 allDays = []
 classrooms = []  # type: List[Classroom]
 courses = []  # type: List[Course]
 instructorsList = []  # type: List[Instructor]
 chromosomeList = []  # type: List[Chromosome]
-
-# Start reading
-readFromExcel()
-# Initialize the Stage list
-initChromosomes(stageSize)
-# Start timing and processing
-beforeStarting = time.time()
-multiProcess(20, 4)
-print(time.time() - beforeStarting)
-printCourses()
-writeToExcel()
+if __name__ == "__main__":
+    # Start reading
+    readFromExcel()
+    # Initialize the Stage list
+    #initChromosomes(stageSize)
+    # Start timing and processing
+    beforeStarting = time.time()
+    #multiProcess(40, 4)
+    # Run new processes on 2 Threads! then make it 4
+    myTmp = dualPopProcess(5, 5)
+    print(time.time() - beforeStarting)
+    # Print data
+    #printCourses()
+    print("Stage Size:", stageSize, " and answer sizes==>", len(myTmp[0]), " ", len(myTmp[1]))
+    print("And the Pop is:")
+    for i in range(stageSize):
+        print(myTmp[0][i].scoring(), myTmp[1][i].scoring())
+    #for i in range(stageSize):
+    #    print(chromosomeList[i].scoring())
+    # Write data
+    #writeToExcel()
