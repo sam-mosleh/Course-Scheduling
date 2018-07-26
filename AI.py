@@ -9,7 +9,7 @@ import time
 import openpyxl
 from openpyxl.compat import range
 from openpyxl.utils import get_column_letter
-from copy import deepcopy
+
 # Defining infinity number
 maxInfinity = 1000000
 stageSize = 900
@@ -32,9 +32,8 @@ class Instructor:
 
 
 class Course:
-    def __init__(self, f_name, f_containing=0, f_capacity=maxInfinity, f_timesInWeek=2):
+    def __init__(self, f_name, f_containing=maxInfinity, f_timesInWeek=2):
         self.courseName = f_name
-        self.capacity = f_capacity
         self.timesInWeek = f_timesInWeek
         self.containing = f_containing
         self.presentors = []
@@ -57,21 +56,11 @@ class Chromosome:
         self.coursePresentors = dict()
         self.distictPresentors = dict()
 
-    def copy(self):
-        tmpChromo = Chromosome()
-        tmpChromo.schedule = self.schedule[:]
-        tmpChromo.__myScore = self.__myScore
-        return tmpChromo
-
     def scoring(self):
         return self.__myScore
 
     def randomInitialize(self):
         # Fill it randomly
-
-        # End if cannot fill it
-        if 2*len(courses) > self.scheduleSize:
-            return
 
         for randCours in range(len(courses)):
             for repT in range(courses[randCours].timesInWeek):
@@ -150,14 +139,22 @@ class Chromosome:
     # Calculate score of the chromosome
     def fitnessCalculation(self):
         score = 0
-        # Located with enough seats (Course cont and class cap)
+        self.coursePresentors.clear()
+        self.distictPresentors.clear()
+        numberOfClasses = [[0 for h in instructorsList] for k in allDays]
+        instructorTeachingNoon = [0 for h in instructorsList]
+        chartDayTimes = [list() for k in chartSets]
+        teachersDelta = [0 for i in instructorsList]
+        allDatas = 0
         for i in range(self.scheduleSize):
-            if self.schedule[i][0] != -1 and courses[self.schedule[i][1]].containing <= classrooms[classDayTime(i)[0]].capacity:
-                score += 1
+            if self.schedule[i][0] != -1:
+                # Located with enough seats (Course cont and class cap)
+                if courses[self.schedule[i][1]].containing <= classrooms[classDayTime(i)[0]].capacity:
+                    score += 5
+                else:
+                    score -= 5
 
-        # Professor is not busy
-        for i in range(self.scheduleSize):
-            if self.schedule[i][0]!=-1:
+                # Professor is not busy
                 _busy = 0
                 _not_busy = 1
                 indSch = i % genomClassSize
@@ -171,9 +168,7 @@ class Chromosome:
                 else:
                     score -= 1
 
-        # Course is not teaching in another class
-        for i in range(self.scheduleSize):
-            if self.schedule[i][0] != -1:
+                # Course is not teaching in another class
                 _not_taught = 0
                 _taught = 1
                 indSch = i % genomClassSize
@@ -187,15 +182,39 @@ class Chromosome:
                 else:
                     score -= 1
 
-        # Course has been taught more than enough
-        self.coursePresentors.clear()
-        self.distictPresentors.clear()
-        for cIndex in range(self.scheduleSize):
-            if self.schedule[cIndex][0] != -1:
-                if self.schedule[cIndex][1] not in self.coursePresentors:
-                    self.coursePresentors[self.schedule[cIndex][1]] = [(self.schedule[cIndex][0], cIndex), ]
+                # Instructors are available on that time
+                if instructorsList[self.schedule[i][0]].freeTimes[i % genomClassSize]:
+                    score += 1
                 else:
-                    self.coursePresentors[self.schedule[cIndex][1]].append((self.schedule[cIndex][0], cIndex))
+                    score -= 1
+
+                # Classes are available on that time
+                if classrooms[classDayTime(i)[0]].usableTimes[i % genomClassSize]:
+                    score += 1
+                else:
+                    score -= 1
+
+                # Setting Course Presentors
+                if self.schedule[i][1] not in self.coursePresentors:
+                    self.coursePresentors[self.schedule[i][1]] = [(self.schedule[i][0], i), ]
+                else:
+                    self.coursePresentors[self.schedule[i][1]].append((self.schedule[i][0], i))
+
+                # Setting Teachers Time data
+                tmpSaver = classDayTime(i)
+                numberOfClasses[tmpSaver[1]][self.schedule[i][0]] += 1
+                if tmpSaver[2] >= 2:
+                    instructorTeachingNoon[self.schedule[i][0]] = 1
+
+                # Setting Chart Data
+                for setIndex in range(len(chartSets)):
+                    if self.schedule[i][1] in chartSets[setIndex]:
+                        tmpSaver = classDayTime(i)
+                        chartDayTimes[setIndex].append((tmpSaver[1], tmpSaver[2]))
+
+                # Setting instructors Data for Variance
+                teachersDelta[self.schedule[i][0]] += 1
+                allDatas += 1
 
         for i in self.coursePresentors:
             # Taught too many times
@@ -207,48 +226,35 @@ class Chromosome:
             self.distictPresentors[i] = len(set([x for x, y in self.coursePresentors[i]]))
             score -= self.distictPresentors[i] * 10
 
-        # Instructors are available on that time
-        for i in range(self.scheduleSize):
-            if self.schedule[i][0] != -1:
-                if instructorsList[self.schedule[i][0]].freeTimes[i % genomClassSize]:
-                    score += 1
-                else:
-                    score -= 1
-
-        # Classes are available on that time
-        # for i in range(self.scheduleSize):
-        #     if self.schedule[i][0] != -1:
-        #         # #print(i,len(self.schedule[i]),i % genomClassSize,len(self.schedule),len(classrooms[self.schedule[i][1]].usableTimes))
-        #         # print(i)
-        #         # print(len(self.schedule[i]))
-        #         # print(i % genomClassSize)
-        #         # print(len(self.schedule))
-        #         # print(self.schedule[i][1])
-        #         # #print(len(classrooms[self.schedule[i][1]].usableTimes))
-        #         # print(len(classrooms))
-        #         # print([h.className for h in classrooms])
-        #         # print("-------------------------------")
-        #         if classrooms[classDayTime(i)[0]].usableTimes[i % genomClassSize]:
-        #             score += 1
-        #         else:
-        #             score -= 1
-
-        # Instructors are on morning and having less than 3 courses on a day
-        numberOfClasses = [[0 for h in instructorsList] for k in allDays]
-        for i in range(self.scheduleSize):
-            if self.schedule[i][0] != -1:
-                numberOfClasses[classDayTime(i)[1]][self.schedule[i][0]] += 1
+        # Instructors are on morning
+        for x in instructorTeachingNoon:
+            if not x:
+                score += 5
+        # Instructors having less than 3 courses on a day
         for x in range(len(allDays)):
             for y in range(len(instructorsList)):
                 if numberOfClasses[x][y] <= 3:
                     score += 1
+
+        # Chart courses dont match day and time
+        for x in chartDayTimes:
+            if len(x) == len(set(x)):
+                score += 1
+
+        # Setting Variance
+        dataMean = allDatas / len(instructorsList)
+        dataVariance = 0
+        for d in teachersDelta:
+            dataVariance += (d - dataMean)*(d - dataMean)
+        score -= 1 * int(dataVariance)
         self.__myScore = score
 
+
 def classDayTime(f_n):
-    classN = f_n//genomClassSize
-    f_n = f_n%genomClassSize
-    dayN = f_n//5
-    timeN = f_n%5
+    classN = f_n // genomClassSize
+    f_n %= genomClassSize
+    dayN = f_n // 5
+    timeN = f_n % 5
     return classN, dayN, timeN
 
 
@@ -257,23 +263,26 @@ def readFromExcel(f_profSkill, f_profTime, f_freeClass, f_courseRegister, f_clas
     # Opening Excels
     classRead = pd.ExcelFile(f_freeClass)
     profskillRead = pd.read_excel(f_profSkill)
+    allDayRead = pd.read_excel(f_freeClass, 0)
+    registerRead = pd.read_excel(f_courseRegister)
+    capRead = pd.read_excel(f_classCap)
+    chartRead = pd.read_excel("Chart.xlsx")
 
     # Import Course Times from FreeClass table
-    allDayRead = pd.read_excel(f_freeClass, 0)
     for ut in allDayRead.columns:
         universityTimes.append(ut)
     print(universityTimes)
 
     # Import Days from FreeClass table
-    allDayRead = pd.read_excel(f_freeClass, 0)
     for d in allDayRead.index:
         allDays.append(d)
     print(allDays)
 
+    # Set size of a class data
     genomClassSize = len(allDays) * len(universityTimes)
 
-    # Import classes from FreeClass table
-
+    # Import classes from FreeClass table and then import cap from class cap table
+    classMap = dict()
     for selectedClass in classRead.sheet_names:
         readSheet = pd.read_excel(f_freeClass, sheet_name=selectedClass)
         newClass = Classroom(selectedClass)
@@ -282,15 +291,39 @@ def readFromExcel(f_profSkill, f_profTime, f_freeClass, f_courseRegister, f_clas
                 if readSheet[readSheet.columns[j]][readSheet.index[k]]:
                     newClass.usableTimes[len(universityTimes) * k + j] = 1
         classrooms.append(newClass)
+
+    for cIndex in range(len(classrooms)):
+        classMap[classrooms[cIndex].className] = cIndex
     print([c.className for c in classrooms])
 
-    # Import Courses from ProfSkill table
-    courses = [Course(i) for i in profskillRead.columns]
+    for k in capRead.index:
+        if capRead[capRead.columns[1]][k]:
+            classrooms[classMap[str(capRead[capRead.columns[0]][k])]].capacity = 15
+
+    # Import Courses from ProfSkill table and then import cap from register table
+    for selectedCourse in profskillRead.columns:
+        tmpData = selectedCourse.split("-")
+        #print(tmpData)
+        newCourse = Course(tmpData[0])
+        if tmpData[1] == "1" or tmpData[1] == "2":
+            newCourse.timesInWeek = 1
+        courses.append(newCourse)
+        #print(newCourse.courseName, newCourse.timesInWeek)
+
+    courseMap = dict()
+    for cIndex in range(len(courses)):
+        courseMap[courses[cIndex].courseName] = cIndex
+    print([c.courseName for c in courses])
+    for k in registerRead.index:
+        if registerRead[registerRead.columns[1]][k]:
+            tmpData = registerRead[registerRead.columns[0]][k].split("-")
+            #print("here to set>", tmpData)
+            courses[courseMap[tmpData[0]]].containing = 15
     print("number of all courses is =>", len(courses))
-    #print([c.courseName for c in courses])
 
     # Import Instructors
     for i in profskillRead.index:
+
         # Name of Instructor
         newIns = Instructor(i)
 
@@ -307,6 +340,12 @@ def readFromExcel(f_profSkill, f_profTime, f_freeClass, f_courseRegister, f_clas
                 newIns.courseList.append(j)
                 courses[j].presentors.append(len(instructorsList))
         instructorsList.append(newIns)
+
+    for chartCol in chartRead.columns:
+        chartSets.append(set())
+        for charInd in chartRead.index:
+            if type(chartRead[chartCol][charInd]) != float:
+                chartSets[-1].add((chartRead[chartCol][charInd].split("-"))[0])
 
 
 def initChromosomes(f_numberOfNodes, f_chromoList):
@@ -423,7 +462,7 @@ def selectRandomByRWS(f_chromList: List[Chromosome]):
     return f_chromList[resultInd-1]
 
 
-# X with for main pop with negativity 0 and search pop with negativity 1
+# X for main pop with negativity 0 and search pop with negativity 1
 def crossoverByCorrolate(f_chromeA, f_chromeB, f_negativity):
     dist = 0
     for i in range(f_chromeA.scheduleSize):
@@ -673,11 +712,12 @@ courses = []  # type: List[Course]
 instructorsList = []  # type: List[Instructor]
 #chromosomeList = []  # type: List[Chromosome]
 resultChro = Chromosome()
+chartSets = []  # type: List[set]
 if __name__ == "__main__":
-    times = [("2", "40"), ("8", "10")]
-    skill = [("4", "10"), ("6", "40")]
-    freeclasses = ["0", ]
-    classcaps = ["2", ]
+    times = [("0", "10"), ("1", "20")]
+    skill = [("0", "10"), ("6", "40")]
+    freeclasses = ["1", ]
+    classcaps = ["1", ]
     coursereg = ["1", ]
     for x, y in times:
         for a, b in skill:
@@ -707,7 +747,7 @@ if __name__ == "__main__":
                             # Start timing and processing
                             beforeStarting = time.time()
                             # Run new processes on 2 Threads! then make it 4
-                            myTmp = dualPopProcess(100, 5)
+                            myTmp = dualPopProcess(300, 5)
                             if myTmp[0][-1].scoring() > myTmp[1][-1].scoring():
                                 resultChro = myTmp[0][-1]
                             else:
@@ -715,4 +755,4 @@ if __name__ == "__main__":
                             print(x, y, a, b, " done!:", resultChro.scoring())
                             print(time.time() - beforeStarting)
                             # Write data
-                            writeResults("result_"+a+"_"+x+"_2_"+y)
+                            writeResults("result_"+a+"_"+x+"_"+fc+"_"+cp+"_"+cr)
